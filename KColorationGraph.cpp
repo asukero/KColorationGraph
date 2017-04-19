@@ -11,8 +11,7 @@
 #include <regex>
 #include "Tabou.h"
 
-void EvaluationAleatoire(TAlgo LAlgo, TSolution Courante, TSolution Best, TProblem LeProb);
-TSolution GetSolutionVoisine(TSolution Courante, TProblem LeProb, TAlgo LAlgo);
+string EvaluationAleatoire(TAlgo LAlgo, TSolution Courante, TSolution Best, TProblem LeProb);
 
 //******************************************************************************************
 // Fonction main
@@ -48,13 +47,56 @@ int main(int NbParam, char *Param[])
 		TGenetic LeGenetic;
 		LeGenetic.NB_EVAL_MAX = atoi(Param[2]);
 
-		//**Lecture du fichier de donnees
+		cout << "Lecture du fichier de donnees..." << endl;
 		LectureProbleme(NomFichier, LeProb, LeGenetic);
 
 		
-		LeGenetic.ProbCr = 0.1;
-		LeGenetic.ProbMut = 0.2;
-		LeGenetic.TaillePop = 10;
+		
+		cout << "Entrez une probabilite de croisement entre 0 et 1" << endl;
+		cin >> reponse;
+		double value = stod(reponse);
+
+		while(value < 0 || value > 1)
+		{
+			cout << "Erreur : veuillez entrer une probabilite de croisement entre 0 et 1" << endl;
+			cin.clear();
+			cin.ignore(256, '\n');
+			cin >> reponse;
+			value = stod(reponse);
+		}
+
+		
+		LeGenetic.ProbCr = value;
+
+		cout << "Entrez une probabilite de mutation entre 0 et 1" << endl;
+		cin >> reponse;
+		value = stod(reponse);
+
+		while (value < 0 && value > 1)
+		{
+			cout << "Erreur : veuillez entrer une probabilite de mutation entre 0 et 1" << endl;
+			cin.clear();
+			cin.ignore(256, '\n');
+			cin >> reponse;
+			value = stod(reponse);
+		}
+
+		LeGenetic.ProbMut = value;
+
+		cout << "Entrez une taille de population" << endl;
+		cin >> reponse;
+		int pop = stoi(reponse);
+
+		while (pop < 1)
+		{
+			cout << "Erreur : veuillez entrer une taille de population superieure à 1" << endl;
+			cin.clear();
+			cin.ignore(256, '\n');
+			cin >> reponse;
+			pop = stod(reponse);
+		}
+
+		LeGenetic.TaillePop = pop;
 		LeGenetic.TaillePopEnfant = static_cast<int>(ceil(LeGenetic.ProbCr * LeGenetic.TaillePop));
 		LeGenetic.Gen = 0;
 		runAlgoGen(LeProb, LeGenetic);
@@ -65,10 +107,39 @@ int main(int NbParam, char *Param[])
 		TTabou LeTabou;
 
 		LeTabou.NB_EVAL_MAX = atoi(Param[2]);
-		LeTabou.voisinsGeneres = 10;
+
+		cout << "Entrez un nombre de voisins à parcourir" << endl;
+		cin >> reponse;
+		int nb = stoi(reponse);
+
+		while (nb < 1)
+		{
+			cout << "Erreur : veuillez entrer un nombre de voisins à parcourir superieur à 1" << endl;
+			cin.clear();
+			cin.ignore(256, '\n');
+			cin >> reponse;
+			nb = stod(reponse);
+		}
+
+		LeTabou.voisinsGeneres = nb;
+
+		cout << "Entrez la taille max de la liste de tabous" << endl;
+		cin >> reponse;
+		nb = stoi(reponse);
+
+		while (nb < 1)
+		{
+			cout << "Erreur : veuillez entrer une taille max de liste de tabous superieur à 1" << endl;
+			cin.clear();
+			cin.ignore(256, '\n');
+			cin >> reponse;
+			nb = stod(reponse);
+		}
+
 		LeTabou.listeTabous = vector<pair<int, int>>();
-		LeTabou.nombreEchangesMax = 20;
-		//**Lecture du fichier de donnees
+		LeTabou.nombreEchangesMax = nb;
+
+		cout << "Lecture du fichier de donnees..." << endl;
 		LectureProbleme(NomFichier, LeProb, LeTabou);
 
 		runAlgoTabou(LeProb, LeTabou);
@@ -78,8 +149,23 @@ int main(int NbParam, char *Param[])
 	{
 		TDescente LAlgo;
 		LAlgo.NB_EVAL_MAX = atoi(Param[2]);
-		LAlgo.voisinsGeneres = 10;
-		//**Lecture du fichier de donnees
+
+		cout << "Entrez un nombre de voisins à parcourir" << endl;
+		cin >> reponse;
+		int nb = stoi(reponse);
+
+		while (nb < 1)
+		{
+			cout << "Erreur : veuillez entrer un nombre de voisins à parcourir superieur à 1" << endl;
+			cin.clear();
+			cin.ignore(256, '\n');
+			cin >> reponse;
+			nb = stod(reponse);
+		}
+
+		LAlgo.voisinsGeneres = nb;
+		
+		cout << "Lecture du fichier de donnees..." << endl;
 		LectureProbleme(NomFichier, LeProb, LAlgo);
 
 		runAlgoDescente(LeProb, LAlgo);
@@ -88,18 +174,4 @@ int main(int NbParam, char *Param[])
 
 	system("PAUSE");
 	return 0;
-}
-
-void EvaluationAleatoire(TAlgo LAlgo, TSolution Courante, TSolution Best, TProblem LeProb)
-{
-	int best = MAXINT;
-	for (size_t i = 0; i < LAlgo.NB_EVAL_MAX / 5; i++)
-	{
-		CreerSolutionAleatoire(Courante, LeProb);
-		Best = Courante;
-		EvaluerSolution(Best, LeProb, LAlgo);
-		cout << "FCT OBJ : " << Best.FctObj << endl;
-		if (Best.FctObj < best) best = Best.FctObj;
-	}
-	cout << "BEST : " << best << endl;
 }
