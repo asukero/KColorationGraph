@@ -32,7 +32,6 @@ void runAlgoDescente(TProblem LeProb, TDescente LAlgo)
 		else if (Next.FctObj < Courante.FctObj)	//**amélioration
 		{
 			Courante = Next;
-			cout << "Fct Obj Nouvelle Courante: " << Courante.FctObj << endl;
 			//AfficherSolution(Courante, LeProb, "NouvelleCourante: ", false);
 		}
 	} while (LAlgo.CptEval < LAlgo.NB_EVAL_MAX && Courante.FctObj != 0);
